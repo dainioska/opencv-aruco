@@ -1,3 +1,5 @@
+#start but not work
+
 import numpy as np 
 import cv2 
 import cv2.aruco as aruco 
@@ -30,10 +32,32 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 while True:
     ret, frame =cap.read()
-    gray = cv2.cvtColor(frame, cv2.COLOR_BAYER_BG2GRAY) 
-    corners, ids, rejected = aruco.detectMarkers(image=gray, dictionary=aruco_dict, parameters=parameters,
-    cameraMatrix=camera_matrix, distCoeff=camera_distortion) 
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) 
+    corners, ids, rejected = aruco.detectMarkers(image=gray, dictionary=aruco_dict, 
+    parameters=parameters) 
 
     if ids != None and ids[0] == id_to_find:
-        ret = aruco.estimatePoseSingleMarkers(corners, marker_size, camera_matrix,camera_distortion) 
-        rvec, tvec =ret[0]
+        ret = aruco.estimatePoseSingleMarkers(corners, marker_size, camera_matrix, camera_distortion)
+
+        #-- Unpack the output, get only the first 
+        rvec, tvec =ret[0][0,0,:], ret[1][0,0,:]
+
+        #-- Draw the detect marker and put a refernce frame over it
+        aruco.drawDetectMarkers(frame, corners)
+        aruco.drawAxis(frame, camera_matrix, camera_distortion, rvec, tvec, 10)
+    
+    #-- Display the frame
+    cv2.imshow('frame', frame)
+    key = cv2.waitKey(1) & 0xFF
+    if key == ord('q'):
+        cap.release()
+        cv2.destroyAllWindows()
+    
+
+
+
+
+
+
+
+
